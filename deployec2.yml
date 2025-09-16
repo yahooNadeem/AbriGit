@@ -27,4 +27,4 @@ jobs:
           --key-name key-0b9106abe911fe867 \
           --subnet-id subnet-0883b5bc2ca89b684 \
           --security-group-ids sg-0eae11e6c145dd2c9 \
-          --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=Linuxbox},{Key=source,Value=github action},{Key=environment,Value=linux}]'
+          --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=Linuxbox},{Key=source,Value=github action},{Key=environment,Value=linux},{Key=type,Value=t2micro}]'
