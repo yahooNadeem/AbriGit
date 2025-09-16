@@ -1,0 +1,30 @@
+name: Deploy EC2 Instance
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-ec2:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::381491879162:role/GitHubAction-AssumeRoleWithAction
+        aws-region: eu-west-1
+
+    - name: Launch EC2 instance
+      run: |
+        aws ec2 run-instances \
+          --image-id ami-03fd334507439f4d1 \
+          --count 1 \
+          --instance-type t2.micro \
+          --key-name key-0b9106abe911fe867 \
+          --subnet-id subnet-0883b5bc2ca89b684 \
+          --security-group-ids sg-0eae11e6c145dd2c9 \
+          --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=Linuxbox},{Key=source,Value=github action},{Key=environment,Value=linux}]'
