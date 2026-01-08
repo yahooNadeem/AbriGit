@@ -1,0 +1,51 @@
+
+name: Terraform EC2 Deployment (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ec2_name:
+        description: "EC2 Name"
+        required: true
+        default: "TerraformEC2"
+      instance_type:
+        description: "Instance Type"
+        required: true
+        default: "t3.medium"
+
+env:
+  TF_WORKING_DIR: terraform/envs/dev
+  AWS_REGION: eu-west-1
+
+jobs:
+  ec2-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Plan (EC2 Only)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan -input=false -no-color \
+          -var="ec2_name=${{ github.event.inputs.ec2_name }}" \
+          -var="instance_type=${{ github.event.inputs.instance_type }}"
+
+      - name: Terraform Apply (Manual Approval)
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform apply -input=false -auto-approve \
+          -var="ec2_name=${{ github.event.inputs.ec2_name }}" \
+          -var="instance_type=${{ github.event.inputs.instance_type }}"
